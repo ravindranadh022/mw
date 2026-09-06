@@ -80,3 +80,6 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 FROM tomcat:9.0
 COPY target/my-web-app.war /usr/local/tomcat/webapps/my-web-app.war
+
+
+
