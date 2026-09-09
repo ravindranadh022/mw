@@ -248,6 +248,7 @@ for idx in predicted:
         word = idx2word[idx]
         probability = round(y[idx], 4)
 
+
         print(word, "Probability:", probability)
 
         count = count + 1
