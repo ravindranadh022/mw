@@ -255,3 +255,129 @@ for idx in predicted:
 
         if count == 3:
             break
+
+
+
+Word2vec
+import nltk
+import numpy as np
+import pandas as pd
+import regex as re
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
+
+from gensim.models import Word2Vec
+
+nltk.download('punkt')
+nltk.download('stopwords')
+
+data = pd.read_csv(
+    "spam.csv",
+    encoding="latin1"
+)
+
+data.drop(
+    columns=[
+        "Unnamed: 2",
+        "Unnamed: 3",
+        "Unnamed: 4"
+    ],
+    inplace=True
+)
+
+data.rename(
+    columns={
+        "v1": "class",
+        "v2": "text"
+    },
+    inplace=True
+)
+
+label_encoder = LabelEncoder()
+
+data["class"] = label_encoder.fit_transform(
+    data["class"]
+)
+
+ps = PorterStemmer()
+
+stop_words = set(
+    stopwords.words("english")
+)
+
+for i in range(len(data)):
+
+    text = data["text"][i]
+
+    text = re.sub(
+        "^[a-zA-Z]",
+        " ",
+        text
+    )
+
+    text = text.lower()
+
+    text = text.split()
+
+    new_text = []
+
+    for word in text:
+
+        if word not in stop_words:
+
+            stemmed_word = ps.stem(word)
+
+            new_text.append(stemmed_word)
+
+    text = " ".join(new_text)
+
+    data.iloc[i, 1] = text
+
+X = data["text"]
+
+Y = data["class"]
+
+x_train, x_test, y_train, y_test = train_test_split(
+    X,
+    Y,
+    test_size=0.1,
+    random_state=2,
+    stratify=Y
+)
+
+words_in_sent = []
+
+for text in x_train:
+
+    words = text.split()
+
+    words_in_sent.append(words)
+
+word2vec_model = Word2Vec(
+    sentences=words_in_sent,
+    vector_size=300,
+    window=5,
+    workers=2
+)
+
+vocabulary = word2vec_model.wv.key_to_index
+
+print(vocabulary)
+
+print(len(vocabulary))
+
+word = "around"
+
+vector = word2vec_model.wv[word]
+
+print(vector)
+
+similar_words = word2vec_model.wv.most_similar(
+    "free"
+)
+
+print(similar_words)
